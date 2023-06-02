@@ -14,6 +14,7 @@
 // 
 
 #include "Net.h"
+#include "packet_m.h"
 
 Define_Module(Net);
 

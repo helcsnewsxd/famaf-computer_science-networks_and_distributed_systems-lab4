@@ -14,6 +14,7 @@
 // 
 
 #include "App.h"
+#include "packet_m.h"
 
 Define_Module(App);
 

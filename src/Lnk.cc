@@ -14,6 +14,7 @@
 // 
 
 #include "Lnk.h"
+#include "packet_m.h"
 
 Define_Module(Lnk);
 
