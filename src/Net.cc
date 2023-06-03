@@ -13,8 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
+#include <stdio.h>
 #include "Net.h"
-#include "packet_m.h"
+#include "Packet_m.h"
+#include "NeighborInfo_m.h"
+
+const bool DEBUG = true;
 
 Define_Module(Net);
 
@@ -25,25 +29,88 @@ Net::~Net() {
 }
 
 void Net::initialize() {
+    nodeName = this->getParentModule()->getIndex();
+    neighborReached = 0;
+    memset(neighbor, 0, sizeof(neighbor));
+    askNeighborInfo();
 }
 
 void Net::finish() {
 }
 
+// Data Packet Info
+
+bool Net::isDataPacket(cMessage *msg) {
+    Packet *pkt = (Packet *)msg;
+    return pkt->getDestination() != -1;
+}
+
+// Network Info
+
+bool Net::isNeighborInfo(cMessage *msg) {
+    NeighborInfo *pkt = (NeighborInfo *) msg;
+    return pkt->isNeighborInfo();
+}
+
+void Net::askNeighborInfo() {
+    // Send the ask of neighbor names to all the gates
+    for (int i = 0; i < cntNeighbor; i++) {
+        NeighborInfo *pkt = new NeighborInfo();
+        pkt->setIsNeighborInfo(1);
+        pkt->setGateIndex(i);
+        pkt->setSource(nodeName);
+        pkt->setDestination(-1);
+        send((cMessage *)pkt, "toLnk$o", i);
+    }
+}
+
+void Net::actualizeNeighborInfo(cMessage *msg) {
+    NeighborInfo *pkt = (NeighborInfo *)msg;
+    neighbor[pkt->getGateIndex()] = pkt->getNeighborName();
+    neighborReached++;
+
+    if (DEBUG) {
+        std::cout << "For node " << nodeName << " i get neighborName " << pkt->getNeighborName() << \
+                " and cntReached is " << neighborReached << endl << endl;
+
+        if (neighborReached == cntNeighbor) {
+            std::cout << "For node " << nodeName << " i've this neighbors: " << endl;
+            for (int i = 0; i < cntNeighbor; i++) std::cout << neighbor[i] << ' ';
+            std::cout << endl << endl;
+        }
+    }
+
+    delete(pkt);
+}
+
+// Message Handler
+
 void Net::handleMessage(cMessage *msg) {
 
-    // All msg (events) on net are packets
-    Packet *pkt = (Packet *) msg;
+    if (isDataPacket(msg)) {
 
-    // If this node is the final destination, send to App
-    if (pkt->getDestination() == this->getParentModule()->getIndex()) {
-        send(msg, "toApp$o");
-    }
-    // If not, forward the packet to some else... to who?
-    else {
-        // We send to link interface #0, which is the
-        // one connected to the clockwise side of the ring
-        // Is this the best choice? are there others?
-        send(msg, "toLnk$o", 0);
+        Packet *pkt = (Packet *)msg;
+
+        // If this node is the final destination, send to App
+        if (pkt->getDestination() == nodeName)
+            send((cMessage *)pkt, "toApp$o");
+        else { // Re-send the packet
+            send((cMessage *)pkt, "toLnk$o", 0);
+        }
+
+    } else if (isNeighborInfo(msg)) {
+
+        NeighborInfo *pkt = (NeighborInfo*)msg;
+
+        if (pkt->getSource() == nodeName) // The packet has the information that i need
+            actualizeNeighborInfo((cMessage *)pkt);
+        else { // I've to fill my information in the packet to return to source
+            pkt->setNeighborName(nodeName);
+            send((cMessage *)pkt, "toLnk$o", pkt->getArrivalGate()->getIndex());
+        }
+
+    } else {
+        perror("Invalid MSG type");
+        delete(msg);
     }
 }

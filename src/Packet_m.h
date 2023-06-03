@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.0 from packet.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.0 from Packet.msg.
 //
 
 #ifndef __PACKET_M_H
@@ -18,7 +18,7 @@
 
 class Packet;
 /**
- * Class generated from <tt>packet.msg:19</tt> by opp_msgtool.
+ * Class generated from <tt>Packet.msg:19</tt> by opp_msgtool.
  * <pre>
  * //
  * // TODO generated message class

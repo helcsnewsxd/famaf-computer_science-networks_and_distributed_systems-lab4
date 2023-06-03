@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.0 from packet.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.0 from NeighborInfo.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -28,7 +28,7 @@
 #include <sstream>
 #include <memory>
 #include <type_traits>
-#include "packet_m.h"
+#include "NeighborInfo_m.h"
 
 namespace omnetpp {
 
@@ -150,94 +150,94 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
-Register_Class(Packet)
+Register_Class(NeighborInfo)
 
-Packet::Packet(const char *name, short kind) : ::omnetpp::cPacket(name, kind)
+NeighborInfo::NeighborInfo(const char *name, short kind) : ::Packet(name, kind)
 {
 }
 
-Packet::Packet(const Packet& other) : ::omnetpp::cPacket(other)
+NeighborInfo::NeighborInfo(const NeighborInfo& other) : ::Packet(other)
 {
     copy(other);
 }
 
-Packet::~Packet()
+NeighborInfo::~NeighborInfo()
 {
 }
 
-Packet& Packet::operator=(const Packet& other)
+NeighborInfo& NeighborInfo::operator=(const NeighborInfo& other)
 {
     if (this == &other) return *this;
-    ::omnetpp::cPacket::operator=(other);
+    ::Packet::operator=(other);
     copy(other);
     return *this;
 }
 
-void Packet::copy(const Packet& other)
+void NeighborInfo::copy(const NeighborInfo& other)
 {
-    this->source = other.source;
-    this->destination = other.destination;
-    this->hopCount = other.hopCount;
+    this->isNeighborInfo_ = other.isNeighborInfo_;
+    this->gateIndex = other.gateIndex;
+    this->neighborName = other.neighborName;
 }
 
-void Packet::parsimPack(omnetpp::cCommBuffer *b) const
+void NeighborInfo::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::omnetpp::cPacket::parsimPack(b);
-    doParsimPacking(b,this->source);
-    doParsimPacking(b,this->destination);
-    doParsimPacking(b,this->hopCount);
+    ::Packet::parsimPack(b);
+    doParsimPacking(b,this->isNeighborInfo_);
+    doParsimPacking(b,this->gateIndex);
+    doParsimPacking(b,this->neighborName);
 }
 
-void Packet::parsimUnpack(omnetpp::cCommBuffer *b)
+void NeighborInfo::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::omnetpp::cPacket::parsimUnpack(b);
-    doParsimUnpacking(b,this->source);
-    doParsimUnpacking(b,this->destination);
-    doParsimUnpacking(b,this->hopCount);
+    ::Packet::parsimUnpack(b);
+    doParsimUnpacking(b,this->isNeighborInfo_);
+    doParsimUnpacking(b,this->gateIndex);
+    doParsimUnpacking(b,this->neighborName);
 }
 
-int Packet::getSource() const
+bool NeighborInfo::isNeighborInfo() const
 {
-    return this->source;
+    return this->isNeighborInfo_;
 }
 
-void Packet::setSource(int source)
+void NeighborInfo::setIsNeighborInfo(bool isNeighborInfo)
 {
-    this->source = source;
+    this->isNeighborInfo_ = isNeighborInfo;
 }
 
-int Packet::getDestination() const
+int NeighborInfo::getGateIndex() const
 {
-    return this->destination;
+    return this->gateIndex;
 }
 
-void Packet::setDestination(int destination)
+void NeighborInfo::setGateIndex(int gateIndex)
 {
-    this->destination = destination;
+    this->gateIndex = gateIndex;
 }
 
-int Packet::getHopCount() const
+int NeighborInfo::getNeighborName() const
 {
-    return this->hopCount;
+    return this->neighborName;
 }
 
-void Packet::setHopCount(int hopCount)
+void NeighborInfo::setNeighborName(int neighborName)
 {
-    this->hopCount = hopCount;
+    this->neighborName = neighborName;
 }
 
-class PacketDescriptor : public omnetpp::cClassDescriptor
+class NeighborInfoDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
     enum FieldConstants {
-        FIELD_source,
-        FIELD_destination,
-        FIELD_hopCount,
+        FIELD_isNeighborInfo,
+        FIELD_gateIndex,
+        FIELD_neighborName,
     };
   public:
-    PacketDescriptor();
-    virtual ~PacketDescriptor();
+    NeighborInfoDescriptor();
+    virtual ~NeighborInfoDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -263,24 +263,24 @@ class PacketDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(PacketDescriptor)
+Register_ClassDescriptor(NeighborInfoDescriptor)
 
-PacketDescriptor::PacketDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(Packet)), "omnetpp::cPacket")
+NeighborInfoDescriptor::NeighborInfoDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(NeighborInfo)), "Packet")
 {
     propertyNames = nullptr;
 }
 
-PacketDescriptor::~PacketDescriptor()
+NeighborInfoDescriptor::~NeighborInfoDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool PacketDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool NeighborInfoDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<Packet *>(obj)!=nullptr;
+    return dynamic_cast<NeighborInfo *>(obj)!=nullptr;
 }
 
-const char **PacketDescriptor::getPropertyNames() const
+const char **NeighborInfoDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -291,19 +291,19 @@ const char **PacketDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *PacketDescriptor::getProperty(const char *propertyName) const
+const char *NeighborInfoDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int PacketDescriptor::getFieldCount() const
+int NeighborInfoDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? 3+base->getFieldCount() : 3;
 }
 
-unsigned int PacketDescriptor::getFieldTypeFlags(int field) const
+unsigned int NeighborInfoDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -312,14 +312,14 @@ unsigned int PacketDescriptor::getFieldTypeFlags(int field) const
         field -= base->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
-        FD_ISEDITABLE,    // FIELD_source
-        FD_ISEDITABLE,    // FIELD_destination
-        FD_ISEDITABLE,    // FIELD_hopCount
+        FD_ISEDITABLE,    // FIELD_isNeighborInfo
+        FD_ISEDITABLE,    // FIELD_gateIndex
+        FD_ISEDITABLE,    // FIELD_neighborName
     };
     return (field >= 0 && field < 3) ? fieldTypeFlags[field] : 0;
 }
 
-const char *PacketDescriptor::getFieldName(int field) const
+const char *NeighborInfoDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -328,24 +328,24 @@ const char *PacketDescriptor::getFieldName(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "source",
-        "destination",
-        "hopCount",
+        "isNeighborInfo",
+        "gateIndex",
+        "neighborName",
     };
     return (field >= 0 && field < 3) ? fieldNames[field] : nullptr;
 }
 
-int PacketDescriptor::findField(const char *fieldName) const
+int NeighborInfoDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
-    if (strcmp(fieldName, "source") == 0) return baseIndex + 0;
-    if (strcmp(fieldName, "destination") == 0) return baseIndex + 1;
-    if (strcmp(fieldName, "hopCount") == 0) return baseIndex + 2;
+    if (strcmp(fieldName, "isNeighborInfo") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "gateIndex") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "neighborName") == 0) return baseIndex + 2;
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *PacketDescriptor::getFieldTypeString(int field) const
+const char *NeighborInfoDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -354,14 +354,14 @@ const char *PacketDescriptor::getFieldTypeString(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "int",    // FIELD_source
-        "int",    // FIELD_destination
-        "int",    // FIELD_hopCount
+        "bool",    // FIELD_isNeighborInfo
+        "int",    // FIELD_gateIndex
+        "int",    // FIELD_neighborName
     };
     return (field >= 0 && field < 3) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **PacketDescriptor::getFieldPropertyNames(int field) const
+const char **NeighborInfoDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -374,7 +374,7 @@ const char **PacketDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *PacketDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *NeighborInfoDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -387,7 +387,7 @@ const char *PacketDescriptor::getFieldProperty(int field, const char *propertyNa
     }
 }
 
-int PacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int NeighborInfoDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -395,13 +395,13 @@ int PacketDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) cons
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-void PacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void NeighborInfoDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -411,13 +411,13 @@ void PacketDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int
         }
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'Packet'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'NeighborInfo'", field);
     }
 }
 
-const char *PacketDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *NeighborInfoDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -425,13 +425,13 @@ const char *PacketDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object,
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string PacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string NeighborInfoDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -439,16 +439,16 @@ std::string PacketDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        case FIELD_source: return long2string(pp->getSource());
-        case FIELD_destination: return long2string(pp->getDestination());
-        case FIELD_hopCount: return long2string(pp->getHopCount());
+        case FIELD_isNeighborInfo: return bool2string(pp->isNeighborInfo());
+        case FIELD_gateIndex: return long2string(pp->getGateIndex());
+        case FIELD_neighborName: return long2string(pp->getNeighborName());
         default: return "";
     }
 }
 
-void PacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void NeighborInfoDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -458,16 +458,16 @@ void PacketDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field,
         }
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        case FIELD_source: pp->setSource(string2long(value)); break;
-        case FIELD_destination: pp->setDestination(string2long(value)); break;
-        case FIELD_hopCount: pp->setHopCount(string2long(value)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Packet'", field);
+        case FIELD_isNeighborInfo: pp->setIsNeighborInfo(string2bool(value)); break;
+        case FIELD_gateIndex: pp->setGateIndex(string2long(value)); break;
+        case FIELD_neighborName: pp->setNeighborName(string2long(value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
     }
 }
 
-omnetpp::cValue PacketDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue NeighborInfoDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -475,16 +475,16 @@ omnetpp::cValue PacketDescriptor::getFieldValue(omnetpp::any_ptr object, int fie
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        case FIELD_source: return pp->getSource();
-        case FIELD_destination: return pp->getDestination();
-        case FIELD_hopCount: return pp->getHopCount();
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'Packet' as cValue -- field index out of range?", field);
+        case FIELD_isNeighborInfo: return pp->isNeighborInfo();
+        case FIELD_gateIndex: return pp->getGateIndex();
+        case FIELD_neighborName: return pp->getNeighborName();
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'NeighborInfo' as cValue -- field index out of range?", field);
     }
 }
 
-void PacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void NeighborInfoDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -494,16 +494,16 @@ void PacketDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, 
         }
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        case FIELD_source: pp->setSource(omnetpp::checked_int_cast<int>(value.intValue())); break;
-        case FIELD_destination: pp->setDestination(omnetpp::checked_int_cast<int>(value.intValue())); break;
-        case FIELD_hopCount: pp->setHopCount(omnetpp::checked_int_cast<int>(value.intValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Packet'", field);
+        case FIELD_isNeighborInfo: pp->setIsNeighborInfo(value.boolValue()); break;
+        case FIELD_gateIndex: pp->setGateIndex(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_neighborName: pp->setNeighborName(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
     }
 }
 
-const char *PacketDescriptor::getFieldStructName(int field) const
+const char *NeighborInfoDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -516,7 +516,7 @@ const char *PacketDescriptor::getFieldStructName(int field) const
     };
 }
 
-omnetpp::any_ptr PacketDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr NeighborInfoDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -524,13 +524,13 @@ omnetpp::any_ptr PacketDescriptor::getFieldStructValuePointer(omnetpp::any_ptr o
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
         default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-void PacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void NeighborInfoDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -540,9 +540,9 @@ void PacketDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int f
         }
         field -= base->getFieldCount();
     }
-    Packet *pp = omnetpp::fromAnyPtr<Packet>(object); (void)pp;
+    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'Packet'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
     }
 }
 

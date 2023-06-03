@@ -23,10 +23,14 @@ using namespace omnetpp;
 /**
  * TODO - Generated class
  */
+
 class Net : public cSimpleModule
 {
   private:
-
+    static const int cntNeighbor = 2;
+    int neighborReached; // the cnt of known neighbors
+    int neighbor[cntNeighbor]; // the ith element is the neighbor name if i travel to the ith gate
+                            // -1 if i don't know the name
   public:
     Net();
     virtual ~Net();
@@ -34,6 +38,17 @@ class Net : public cSimpleModule
     virtual void initialize();
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
+
+    // Node name
+    int nodeName;
+
+    // Data Packet Info
+    virtual bool isDataPacket(cMessage *msg);
+
+    // Neighbor Info
+    virtual bool isNeighborInfo(cMessage *msg);
+    virtual void askNeighborInfo();
+    virtual void actualizeNeighborInfo(cMessage *msg);
 };
 
 #endif
