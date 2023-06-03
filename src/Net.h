@@ -17,8 +17,12 @@
 #define __REDES23LAB4G31_NET_H_
 
 #include <omnetpp.h>
+#include "Packet_m.h"
+#include "NeighborInfo_m.h"
+#include "LSP_m.h"
 
 using namespace omnetpp;
+using namespace std;
 
 /**
  * TODO - Generated class
@@ -27,10 +31,24 @@ using namespace omnetpp;
 class Net : public cSimpleModule
 {
   private:
+    // Node Info
     static const int cntNeighbor = 2;
     int neighborReached; // the cnt of known neighbors
     int neighbor[cntNeighbor]; // the ith element is the neighbor name if i travel to the ith gate
                             // -1 if i don't know the name
+
+    // Network Representation
+    map<int, int> id, idRev; // NodeName to Index to represent it in the graph. The next map (idRev) is the reverse
+    vector<pair<int, int>> graph; // The ith element is the (left, right) neighbors of the node
+    vector<bool> LSPVis; // True if the node get the LSP information with node with id equals to the index (ith)
+    int cntLSPVis;
+    int cntNodesGraph;
+    virtual int getID(int nodeName);
+    virtual int getIDRev(int nodeName);
+
+    // Gate to Send
+    vector<int> gateToSent;
+
   public:
     Net();
     virtual ~Net();
@@ -48,7 +66,12 @@ class Net : public cSimpleModule
     // Neighbor Info
     virtual bool isNeighborInfo(cMessage *msg);
     virtual void askNeighborInfo();
-    virtual void actualizeNeighborInfo(cMessage *msg);
+    virtual void actualizeNeighborInfo(NeighborInfo *pkt);
+
+    // LSP Info
+    virtual bool isLSPInfo(cMessage *msg);
+    virtual void sendLSP(LSP *pkt);
+    virtual void actualizeNetworkRepresentation(LSP *pkt);
 };
 
 #endif

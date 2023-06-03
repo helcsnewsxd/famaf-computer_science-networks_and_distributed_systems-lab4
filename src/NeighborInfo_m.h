@@ -27,7 +27,6 @@ class NeighborInfo;
  * //
  * packet NeighborInfo extends Packet
  * {
- *     bool isNeighborInfo; // 0 if it's Packet but not NeighborInfo
  *     int gateIndex;
  *     int neighborName;
  * }
@@ -36,7 +35,6 @@ class NeighborInfo;
 class NeighborInfo : public ::Packet
 {
   protected:
-    bool isNeighborInfo_ = false;
     int gateIndex = 0;
     int neighborName = 0;
 
@@ -54,9 +52,6 @@ class NeighborInfo : public ::Packet
     virtual NeighborInfo *dup() const override {return new NeighborInfo(*this);}
     virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
     virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
-
-    virtual bool isNeighborInfo() const;
-    virtual void setIsNeighborInfo(bool isNeighborInfo);
 
     virtual int getGateIndex() const;
     virtual void setGateIndex(int gateIndex);

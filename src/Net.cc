@@ -15,8 +15,6 @@
 
 #include <stdio.h>
 #include "Net.h"
-#include "Packet_m.h"
-#include "NeighborInfo_m.h"
 
 const bool DEBUG = true;
 
@@ -30,6 +28,8 @@ Net::~Net() {
 
 void Net::initialize() {
     nodeName = this->getParentModule()->getIndex();
+    cntNodesGraph = 0;
+    cntLSPVis = 0;
     neighborReached = 0;
     memset(neighbor, 0, sizeof(neighbor));
     askNeighborInfo();
@@ -42,21 +42,20 @@ void Net::finish() {
 
 bool Net::isDataPacket(cMessage *msg) {
     Packet *pkt = (Packet *)msg;
-    return pkt->getDestination() != -1;
+    return pkt->getDestination() >= 0;
 }
 
 // Network Info
 
 bool Net::isNeighborInfo(cMessage *msg) {
-    NeighborInfo *pkt = (NeighborInfo *) msg;
-    return pkt->isNeighborInfo();
+    Packet *pkt = (Packet *) msg;
+    return pkt->getDestination() == -1;
 }
 
 void Net::askNeighborInfo() {
     // Send the ask of neighbor names to all the gates
     for (int i = 0; i < cntNeighbor; i++) {
         NeighborInfo *pkt = new NeighborInfo();
-        pkt->setIsNeighborInfo(1);
         pkt->setGateIndex(i);
         pkt->setSource(nodeName);
         pkt->setDestination(-1);
@@ -64,23 +63,100 @@ void Net::askNeighborInfo() {
     }
 }
 
-void Net::actualizeNeighborInfo(cMessage *msg) {
-    NeighborInfo *pkt = (NeighborInfo *)msg;
+void Net::actualizeNeighborInfo(NeighborInfo *pkt) {
     neighbor[pkt->getGateIndex()] = pkt->getNeighborName();
     neighborReached++;
 
     if (DEBUG) {
-        std::cout << "For node " << nodeName << " i get neighborName " << pkt->getNeighborName() << \
+        cout << "For node " << nodeName << " i get neighborName " << pkt->getNeighborName() << \
                 " and cntReached is " << neighborReached << endl << endl;
 
         if (neighborReached == cntNeighbor) {
-            std::cout << "For node " << nodeName << " i've this neighbors: " << endl;
-            for (int i = 0; i < cntNeighbor; i++) std::cout << neighbor[i] << ' ';
-            std::cout << endl << endl;
+            cout << "For node " << nodeName << " i've this neighbors: " << endl;
+            for (int i = 0; i < cntNeighbor; i++) cout << neighbor[i] << ' ';
+            cout << endl << endl;
         }
     }
 
-    delete(pkt);
+    // I can send my LSP information
+    if (neighborReached == cntNeighbor) {
+        LSP *pktLSP = new LSP();
+        pktLSP->setNode(nodeName);
+        for (int i = 0; i < cntNeighbor; i++)
+            pktLSP->setNeighbor(i, neighbor[i]);
+        pktLSP->setSource(nodeName);
+        pktLSP->setDestination(-2);
+        actualizeNetworkRepresentation(pktLSP);
+        delete(pktLSP);
+    }
+}
+
+// LSP Info
+
+int Net::getID(int nodeName) {
+    if (id.find(nodeName) != id.end())
+        return id[nodeName];
+
+    id[nodeName] = cntNodesGraph;
+    idRev[cntNodesGraph] = nodeName;
+
+    LSPVis.push_back(false);
+    graph.push_back(make_pair(-1, -1));
+    gateToSent.push_back(0);
+
+    return cntNodesGraph++;
+}
+
+int Net::getIDRev(int nodeIndex) {
+    assert(idRev.find(nodeIndex) != idRev.end());
+    return idRev[nodeIndex];
+}
+
+bool Net::isLSPInfo(cMessage *msg) {
+    Packet *pkt = (Packet *) msg;
+    return pkt->getDestination() == -2;
+}
+
+void Net::sendLSP(LSP *pkt) {
+    // Send the LSP to all the gates
+    for (int i = 0; i < cntNeighbor; i++) {
+        LSP *pktLSP = pkt->dup();
+        send((cMessage *)pktLSP, "toLnk$o", i);
+    }
+}
+
+void Net::actualizeNetworkRepresentation(LSP *pkt) {
+    // Get the information
+    int nodeLSP = pkt->getNode();
+    int nodeLSPIndex = getID(nodeLSP);
+
+    // If i get early the LSP information of this node (i don't actualize or send to other nodes)
+    if (LSPVis[nodeLSPIndex]) {
+        return;
+    }
+
+    // Add the information into the network representation as a graph
+    int neighborLSP[2];
+    for (int i = 0; i < cntNeighbor; i++)
+        neighborLSP[i] = pkt->getNeighbor(i);
+    graph[nodeLSPIndex] = make_pair(getID(neighborLSP[0]), getID(neighborLSP[1]));
+    LSPVis[nodeLSPIndex] = true;
+    cntLSPVis++;
+
+    // Send LSP to all neighbors
+    sendLSP(pkt);
+
+    // If i finish the Network Representation using LSP messages, print DEBUG
+    if (cntNodesGraph == cntLSPVis && DEBUG) {
+        cout << "For node " << nodeName << " i've this representation: " << endl;
+        for (int i = 0; i < cntNodesGraph; i++) {
+            cout << "Node (" << i << "," << getIDRev(i) << "): ";
+            cout << "{(" << graph[i].first << "," << getIDRev(graph[i].first) << "), ";
+            cout << "(" << graph[i].second<< "," << getIDRev(graph[i].second) << ")}";
+            cout << endl;
+        }
+        cout << string(40, '-') << endl;
+    }
 }
 
 // Message Handler
@@ -88,7 +164,6 @@ void Net::actualizeNeighborInfo(cMessage *msg) {
 void Net::handleMessage(cMessage *msg) {
 
     if (isDataPacket(msg)) {
-
         Packet *pkt = (Packet *)msg;
 
         // If this node is the final destination, send to App
@@ -102,12 +177,19 @@ void Net::handleMessage(cMessage *msg) {
 
         NeighborInfo *pkt = (NeighborInfo*)msg;
 
-        if (pkt->getSource() == nodeName) // The packet has the information that i need
-            actualizeNeighborInfo((cMessage *)pkt);
-        else { // I've to fill my information in the packet to return to source
+        if (pkt->getSource() == nodeName) { // The packet has the information that i need
+            actualizeNeighborInfo(pkt);
+            delete(msg);
+        } else { // I've to fill my information in the packet to return to source
             pkt->setNeighborName(nodeName);
             send((cMessage *)pkt, "toLnk$o", pkt->getArrivalGate()->getIndex());
         }
+
+    } else if (isLSPInfo(msg)) {
+
+        LSP *pkt = (LSP *)msg;
+        actualizeNetworkRepresentation(pkt);
+        delete(msg);
 
     } else {
         perror("Invalid MSG type");

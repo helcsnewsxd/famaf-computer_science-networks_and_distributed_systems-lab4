@@ -18,7 +18,7 @@ import Packet;
 //
 // TODO generated message class
 //
-packet NeighborInfo extends Packet {
-    int gateIndex;
-    int neighborName;
+packet LSP extends Packet {
+    int node;
+    int neighbor[2]; // left and right. In this order
 }

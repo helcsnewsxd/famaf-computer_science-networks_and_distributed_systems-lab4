@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgtool 6.0 from NeighborInfo.msg.
+// Generated file, do not edit! Created by opp_msgtool 6.0 from LSP.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -28,7 +28,7 @@
 #include <sstream>
 #include <memory>
 #include <type_traits>
-#include "NeighborInfo_m.h"
+#include "LSP_m.h"
 
 namespace omnetpp {
 
@@ -150,22 +150,22 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
-Register_Class(NeighborInfo)
+Register_Class(LSP)
 
-NeighborInfo::NeighborInfo(const char *name, short kind) : ::Packet(name, kind)
+LSP::LSP(const char *name, short kind) : ::Packet(name, kind)
 {
 }
 
-NeighborInfo::NeighborInfo(const NeighborInfo& other) : ::Packet(other)
+LSP::LSP(const LSP& other) : ::Packet(other)
 {
     copy(other);
 }
 
-NeighborInfo::~NeighborInfo()
+LSP::~LSP()
 {
 }
 
-NeighborInfo& NeighborInfo::operator=(const NeighborInfo& other)
+LSP& LSP::operator=(const LSP& other)
 {
     if (this == &other) return *this;
     ::Packet::operator=(other);
@@ -173,57 +173,66 @@ NeighborInfo& NeighborInfo::operator=(const NeighborInfo& other)
     return *this;
 }
 
-void NeighborInfo::copy(const NeighborInfo& other)
+void LSP::copy(const LSP& other)
 {
-    this->gateIndex = other.gateIndex;
-    this->neighborName = other.neighborName;
+    this->node = other.node;
+    for (size_t i = 0; i < 2; i++) {
+        this->neighbor[i] = other.neighbor[i];
+    }
 }
 
-void NeighborInfo::parsimPack(omnetpp::cCommBuffer *b) const
+void LSP::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::Packet::parsimPack(b);
-    doParsimPacking(b,this->gateIndex);
-    doParsimPacking(b,this->neighborName);
+    doParsimPacking(b,this->node);
+    doParsimArrayPacking(b,this->neighbor,2);
 }
 
-void NeighborInfo::parsimUnpack(omnetpp::cCommBuffer *b)
+void LSP::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::Packet::parsimUnpack(b);
-    doParsimUnpacking(b,this->gateIndex);
-    doParsimUnpacking(b,this->neighborName);
+    doParsimUnpacking(b,this->node);
+    doParsimArrayUnpacking(b,this->neighbor,2);
 }
 
-int NeighborInfo::getGateIndex() const
+int LSP::getNode() const
 {
-    return this->gateIndex;
+    return this->node;
 }
 
-void NeighborInfo::setGateIndex(int gateIndex)
+void LSP::setNode(int node)
 {
-    this->gateIndex = gateIndex;
+    this->node = node;
 }
 
-int NeighborInfo::getNeighborName() const
+size_t LSP::getNeighborArraySize() const
 {
-    return this->neighborName;
+    return 2;
 }
 
-void NeighborInfo::setNeighborName(int neighborName)
+int LSP::getNeighbor(size_t k) const
 {
-    this->neighborName = neighborName;
+    if (k >= 2) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)2, (unsigned long)k);
+    return this->neighbor[k];
 }
 
-class NeighborInfoDescriptor : public omnetpp::cClassDescriptor
+void LSP::setNeighbor(size_t k, int neighbor)
+{
+    if (k >= 2) throw omnetpp::cRuntimeError("Array of size %lu indexed by %lu", (unsigned long)2, (unsigned long)k);
+    this->neighbor[k] = neighbor;
+}
+
+class LSPDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertyNames;
     enum FieldConstants {
-        FIELD_gateIndex,
-        FIELD_neighborName,
+        FIELD_node,
+        FIELD_neighbor,
     };
   public:
-    NeighborInfoDescriptor();
-    virtual ~NeighborInfoDescriptor();
+    LSPDescriptor();
+    virtual ~LSPDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -249,24 +258,24 @@ class NeighborInfoDescriptor : public omnetpp::cClassDescriptor
     virtual void setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const override;
 };
 
-Register_ClassDescriptor(NeighborInfoDescriptor)
+Register_ClassDescriptor(LSPDescriptor)
 
-NeighborInfoDescriptor::NeighborInfoDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(NeighborInfo)), "Packet")
+LSPDescriptor::LSPDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(LSP)), "Packet")
 {
     propertyNames = nullptr;
 }
 
-NeighborInfoDescriptor::~NeighborInfoDescriptor()
+LSPDescriptor::~LSPDescriptor()
 {
     delete[] propertyNames;
 }
 
-bool NeighborInfoDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool LSPDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<NeighborInfo *>(obj)!=nullptr;
+    return dynamic_cast<LSP *>(obj)!=nullptr;
 }
 
-const char **NeighborInfoDescriptor::getPropertyNames() const
+const char **LSPDescriptor::getPropertyNames() const
 {
     if (!propertyNames) {
         static const char *names[] = {  nullptr };
@@ -277,19 +286,19 @@ const char **NeighborInfoDescriptor::getPropertyNames() const
     return propertyNames;
 }
 
-const char *NeighborInfoDescriptor::getProperty(const char *propertyName) const
+const char *LSPDescriptor::getProperty(const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? base->getProperty(propertyName) : nullptr;
 }
 
-int NeighborInfoDescriptor::getFieldCount() const
+int LSPDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     return base ? 2+base->getFieldCount() : 2;
 }
 
-unsigned int NeighborInfoDescriptor::getFieldTypeFlags(int field) const
+unsigned int LSPDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -298,13 +307,13 @@ unsigned int NeighborInfoDescriptor::getFieldTypeFlags(int field) const
         field -= base->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
-        FD_ISEDITABLE,    // FIELD_gateIndex
-        FD_ISEDITABLE,    // FIELD_neighborName
+        FD_ISEDITABLE,    // FIELD_node
+        FD_ISARRAY | FD_ISEDITABLE,    // FIELD_neighbor
     };
     return (field >= 0 && field < 2) ? fieldTypeFlags[field] : 0;
 }
 
-const char *NeighborInfoDescriptor::getFieldName(int field) const
+const char *LSPDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -313,22 +322,22 @@ const char *NeighborInfoDescriptor::getFieldName(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "gateIndex",
-        "neighborName",
+        "node",
+        "neighbor",
     };
     return (field >= 0 && field < 2) ? fieldNames[field] : nullptr;
 }
 
-int NeighborInfoDescriptor::findField(const char *fieldName) const
+int LSPDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     int baseIndex = base ? base->getFieldCount() : 0;
-    if (strcmp(fieldName, "gateIndex") == 0) return baseIndex + 0;
-    if (strcmp(fieldName, "neighborName") == 0) return baseIndex + 1;
+    if (strcmp(fieldName, "node") == 0) return baseIndex + 0;
+    if (strcmp(fieldName, "neighbor") == 0) return baseIndex + 1;
     return base ? base->findField(fieldName) : -1;
 }
 
-const char *NeighborInfoDescriptor::getFieldTypeString(int field) const
+const char *LSPDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -337,13 +346,13 @@ const char *NeighborInfoDescriptor::getFieldTypeString(int field) const
         field -= base->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "int",    // FIELD_gateIndex
-        "int",    // FIELD_neighborName
+        "int",    // FIELD_node
+        "int",    // FIELD_neighbor
     };
     return (field >= 0 && field < 2) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **NeighborInfoDescriptor::getFieldPropertyNames(int field) const
+const char **LSPDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -356,7 +365,7 @@ const char **NeighborInfoDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *NeighborInfoDescriptor::getFieldProperty(int field, const char *propertyName) const
+const char *LSPDescriptor::getFieldProperty(int field, const char *propertyName) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -369,7 +378,7 @@ const char *NeighborInfoDescriptor::getFieldProperty(int field, const char *prop
     }
 }
 
-int NeighborInfoDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
+int LSPDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -377,13 +386,14 @@ int NeighborInfoDescriptor::getFieldArraySize(omnetpp::any_ptr object, int field
             return base->getFieldArraySize(object, field);
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
+        case FIELD_neighbor: return 2;
         default: return 0;
     }
 }
 
-void NeighborInfoDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
+void LSPDescriptor::setFieldArraySize(omnetpp::any_ptr object, int field, int size) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -393,13 +403,13 @@ void NeighborInfoDescriptor::setFieldArraySize(omnetpp::any_ptr object, int fiel
         }
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'NeighborInfo'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set array size of field %d of class 'LSP'", field);
     }
 }
 
-const char *NeighborInfoDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
+const char *LSPDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -407,13 +417,13 @@ const char *NeighborInfoDescriptor::getFieldDynamicTypeString(omnetpp::any_ptr o
             return base->getFieldDynamicTypeString(object,field,i);
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string NeighborInfoDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
+std::string LSPDescriptor::getFieldValueAsString(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -421,15 +431,15 @@ std::string NeighborInfoDescriptor::getFieldValueAsString(omnetpp::any_ptr objec
             return base->getFieldValueAsString(object,field,i);
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        case FIELD_gateIndex: return long2string(pp->getGateIndex());
-        case FIELD_neighborName: return long2string(pp->getNeighborName());
+        case FIELD_node: return long2string(pp->getNode());
+        case FIELD_neighbor: return long2string(pp->getNeighbor(i));
         default: return "";
     }
 }
 
-void NeighborInfoDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
+void LSPDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -439,15 +449,15 @@ void NeighborInfoDescriptor::setFieldValueAsString(omnetpp::any_ptr object, int 
         }
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        case FIELD_gateIndex: pp->setGateIndex(string2long(value)); break;
-        case FIELD_neighborName: pp->setNeighborName(string2long(value)); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
+        case FIELD_node: pp->setNode(string2long(value)); break;
+        case FIELD_neighbor: pp->setNeighbor(i,string2long(value)); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'LSP'", field);
     }
 }
 
-omnetpp::cValue NeighborInfoDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
+omnetpp::cValue LSPDescriptor::getFieldValue(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -455,15 +465,15 @@ omnetpp::cValue NeighborInfoDescriptor::getFieldValue(omnetpp::any_ptr object, i
             return base->getFieldValue(object,field,i);
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        case FIELD_gateIndex: return pp->getGateIndex();
-        case FIELD_neighborName: return pp->getNeighborName();
-        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'NeighborInfo' as cValue -- field index out of range?", field);
+        case FIELD_node: return pp->getNode();
+        case FIELD_neighbor: return pp->getNeighbor(i);
+        default: throw omnetpp::cRuntimeError("Cannot return field %d of class 'LSP' as cValue -- field index out of range?", field);
     }
 }
 
-void NeighborInfoDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
+void LSPDescriptor::setFieldValue(omnetpp::any_ptr object, int field, int i, const omnetpp::cValue& value) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -473,15 +483,15 @@ void NeighborInfoDescriptor::setFieldValue(omnetpp::any_ptr object, int field, i
         }
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        case FIELD_gateIndex: pp->setGateIndex(omnetpp::checked_int_cast<int>(value.intValue())); break;
-        case FIELD_neighborName: pp->setNeighborName(omnetpp::checked_int_cast<int>(value.intValue())); break;
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
+        case FIELD_node: pp->setNode(omnetpp::checked_int_cast<int>(value.intValue())); break;
+        case FIELD_neighbor: pp->setNeighbor(i,omnetpp::checked_int_cast<int>(value.intValue())); break;
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'LSP'", field);
     }
 }
 
-const char *NeighborInfoDescriptor::getFieldStructName(int field) const
+const char *LSPDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -494,7 +504,7 @@ const char *NeighborInfoDescriptor::getFieldStructName(int field) const
     };
 }
 
-omnetpp::any_ptr NeighborInfoDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
+omnetpp::any_ptr LSPDescriptor::getFieldStructValuePointer(omnetpp::any_ptr object, int field, int i) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -502,13 +512,13 @@ omnetpp::any_ptr NeighborInfoDescriptor::getFieldStructValuePointer(omnetpp::any
             return base->getFieldStructValuePointer(object, field, i);
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
         default: return omnetpp::any_ptr(nullptr);
     }
 }
 
-void NeighborInfoDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
+void LSPDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object, int field, int i, omnetpp::any_ptr ptr) const
 {
     omnetpp::cClassDescriptor *base = getBaseClassDescriptor();
     if (base) {
@@ -518,9 +528,9 @@ void NeighborInfoDescriptor::setFieldStructValuePointer(omnetpp::any_ptr object,
         }
         field -= base->getFieldCount();
     }
-    NeighborInfo *pp = omnetpp::fromAnyPtr<NeighborInfo>(object); (void)pp;
+    LSP *pp = omnetpp::fromAnyPtr<LSP>(object); (void)pp;
     switch (field) {
-        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'NeighborInfo'", field);
+        default: throw omnetpp::cRuntimeError("Cannot set field %d of class 'LSP'", field);
     }
 }
 
