@@ -18,18 +18,17 @@ import redes23lab4g31.Node;
 
 network Network
 {
+    parameters:
+        int numNodes = 8;
+
     submodules:
-        node[8]: Node {
+        node[numNodes]: Node {
             @display("p=100,100,ri,100,100");
-            interfaces=2;
+            interfaces = 2;
         }
+
     connections allowunconnected:
-        node[0].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[1].toNod[0];
-        node[1].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[2].toNod[0];
-        node[2].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[3].toNod[0];
-        node[3].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[4].toNod[0];
-        node[4].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[5].toNod[0];
-        node[5].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[6].toNod[0];
-        node[6].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[7].toNod[0];
-        node[7].toNod[1] <--> {  datarate = 1Mbps; delay = 100us; } <--> node[0].toNod[0];
+        for i = 0..numNodes-1 {
+            node[i].toNod[1] <--> { datarate = 1Mbps; delay = 100us; } <--> node[(i+1)%numNodes].toNod[0];
+        }
 }
