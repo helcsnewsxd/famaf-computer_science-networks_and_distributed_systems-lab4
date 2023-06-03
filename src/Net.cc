@@ -14,9 +14,10 @@
 // 
 
 #include <stdio.h>
+#include <queue>
 #include "Net.h"
 
-const bool DEBUG = true;
+const bool DEBUG = false; // True if you want comments to DEBUG
 
 Define_Module(Net);
 
@@ -32,6 +33,8 @@ void Net::initialize() {
     cntLSPVis = 0;
     neighborReached = 0;
     memset(neighbor, 0, sizeof(neighbor));
+
+    // Get the information from the neighbors
     askNeighborInfo();
 }
 
@@ -102,7 +105,7 @@ int Net::getID(int nodeName) {
 
     LSPVis.push_back(false);
     graph.push_back(make_pair(-1, -1));
-    gateToSent.push_back(0);
+    gateToSend.push_back(-1);
 
     return cntNodesGraph++;
 }
@@ -146,17 +149,51 @@ void Net::actualizeNetworkRepresentation(LSP *pkt) {
     // Send LSP to all neighbors
     sendLSP(pkt);
 
-    // If i finish the Network Representation using LSP messages, print DEBUG
+    // If i finish the Network Representation using LSP messages, calculate the gate for the nodes
     if (cntNodesGraph == cntLSPVis && DEBUG) {
-        cout << "For node " << nodeName << " i've this representation: " << endl;
-        for (int i = 0; i < cntNodesGraph; i++) {
-            cout << "Node (" << i << "," << getIDRev(i) << "): ";
-            cout << "{(" << graph[i].first << "," << getIDRev(graph[i].first) << "), ";
-            cout << "(" << graph[i].second<< "," << getIDRev(graph[i].second) << ")}";
-            cout << endl;
+        // Check the minimum distance with BFS
+        queue<pair<int, int>> q;
+        q.push(make_pair(graph[getID(nodeName)].first, 0));
+        q.push(make_pair(graph[getID(nodeName)].second, 1));
+
+        while (!q.empty()) {
+            pair<int, int> actNode = q.front();
+            q.pop();
+
+            gateToSend[actNode.first] = actNode.second;
+
+            // Check the distance to the neighbor (left if snd is 0. Right otherwise)
+            if (actNode.second == 0) {
+                if (gateToSend[graph[actNode.first].first] == -1) {
+                    q.push(make_pair(graph[actNode.first].first, 0));
+                }
+            } else {
+                if (gateToSend[graph[actNode.first].second] == -1) {
+                    q.push(make_pair(graph[actNode.first].second, 1));
+                }
+            }
         }
-        cout << string(40, '-') << endl;
+
+        if (DEBUG) { // Print DEBUG
+            cout << "For node " << nodeName << " i've this representation: " << endl;
+            for (int i = 0; i < cntNodesGraph; i++) {
+                cout << "Node (" << i << "," << getIDRev(i) << "): ";
+                cout << "{(" << graph[i].first << "," << getIDRev(graph[i].first) << "), ";
+                cout << "(" << graph[i].second<< "," << getIDRev(graph[i].second) << ")}";
+                cout << " I go to this node going to " << (gateToSend[i]==0?"left":"right");
+                cout << endl;
+            }
+            cout << string(40, '-') << endl;
+        }
     }
+}
+
+// Gate to Send
+
+int Net::getGateToSend(int nodeName) {
+    if (id.find(nodeName) == id.end())
+        return 0;
+    return max(gateToSend[getID(nodeName)], 0);
 }
 
 // Message Handler
@@ -170,7 +207,7 @@ void Net::handleMessage(cMessage *msg) {
         if (pkt->getDestination() == nodeName)
             send((cMessage *)pkt, "toApp$o");
         else { // Re-send the packet
-            send((cMessage *)pkt, "toLnk$o", 0);
+            send((cMessage *)pkt, "toLnk$o", getGateToSend(pkt->getDestination()));
         }
 
     } else if (isNeighborInfo(msg)) {

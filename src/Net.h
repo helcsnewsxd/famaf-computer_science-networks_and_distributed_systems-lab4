@@ -47,7 +47,8 @@ class Net : public cSimpleModule
     virtual int getIDRev(int nodeName);
 
     // Gate to Send
-    vector<int> gateToSent;
+    virtual int getGateToSend(int nodeName);
+    vector<int> gateToSend;
 
   public:
     Net();
