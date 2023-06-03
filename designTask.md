@@ -34,7 +34,7 @@ Respecto a los puntos importantes que se tuvo en cuenta para la idea y la implem
 	- Que la red tiene topología de anillo
 		- Cada nodo solo puede ir a la izquierda o a la derecha. Luego, el paquete o bien se envía _todo a la derecha_ o bien _todo a la izquierda_
 	- Que la red es inmutable. No se cambian enlaces ni nodos, sea de agregar o eliminar
-		- Una vez que se hace el cálculo para cada nodo sobre cómo debe ser el envío para cada destino posible, no es necesario recalcularlo cada $X$ tiempo ya que tenemos como suposición que la red **nunca cambia**
+		- Una vez que se hace el cálculo para cada nodo sobre cómo debe ser el envío para cada destino posible, no es necesario recalcularlo cada X tiempo ya que tenemos como suposición que la red **nunca cambia**
 - Idea de escalabilidad: para facilitar el desarrollo del punto estrella, varias secciones se hicieron de forma más _general_ y la idea se moldeó en base a eso. Esto se hizo para no tener que recodear todo el proyecto a la hora de hacer el punto estrella para implementar Dijkstra.
 - Posibilidad de DEBUGGING mientras se realizaba el proyecto
 	- El archivo `Net.cc` contiene la flag DEBUG como una constante booleana, la cual especifica si se desea que se imprima la información obtenida en el precómputo para chequear que esté bien. Por defecto está configurada en `false`.
@@ -88,7 +88,7 @@ En base a lo mencionado anteriormente, para la idea se han considerado las sigui
 - La consulta a los vecinos y el envío de los paquetes por todas las gates se hace en la etapa `initialize` del objeto `Net` (es decir, como precómputo antes de cualquier envío de paquete de datos)
 - Si llega un paquete de consulta de nombre de vecinos, completo con mis datos y lo devuelvo por la gate en la que lo recibí
 	- Para esto se usa `pkt->getArrivalGate()->getIndex()`
-- Si me llega de vuelta el paquete que le envié a mi vecino $V$, entonces actualizo los datos locales en base a los que me brindaron
+- Si me llega de vuelta el paquete que le envié a mi vecino V, entonces actualizo los datos locales en base a los que me brindaron
 - Cuando recibo toda la información que necesito (i.e., `neighborReached == cntNeighbor (= 2)`), procedo con el envío de los **LSP**
 
 #### Obtener información de los vecinos de todos los nodos
@@ -122,7 +122,7 @@ En base a lo mencionado anteriormente, para la idea se han considerado las sigui
 	virtual int getGateToSend(int nodeName);
 	vector<int> gateToSend;
 	```
-- Esta parte se hace aplicando simplemente BFS y considerando todas las gates inicializadas en $-1$ (para diferenciar en visitados y no). No es nada tan complejo
+- Esta parte se hace aplicando simplemente BFS y considerando todas las gates inicializadas en -1 (para diferenciar en visitados y no). No es nada tan complejo
 	```cpp
 	queue<pair<int, int>> q;
 	// Agrego mis vecinos con su respectiva dirección
@@ -154,7 +154,7 @@ Si bien no es necesario aplicar el **BFS** ya que para cada nodo solo se visita 
 
 #### Envío de paquetes de datos
 
-En esta sección, si el paquete es de datos (i.e., el destino es $\geq 0$ ), entonces me fijo si lo tengo que enviar a `App` o reenviar a otro nodo.
+En esta sección, si el paquete es de datos (i.e., el destino es >= 0 ), entonces me fijo si lo tengo que enviar a `App` o reenviar a otro nodo.
 ```cpp
 if (pkt->getDestination() == nodeName) // Enviar a App
 	send((cMessage *)pkt, "toApp$o");
