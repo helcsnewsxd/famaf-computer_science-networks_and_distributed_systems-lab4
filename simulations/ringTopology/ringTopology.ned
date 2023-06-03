@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package redes23lab4g31.simulations;
+package redes23lab4g31.simulations.ringTopology;
 import redes23lab4g31.Node;
 
 network Network
