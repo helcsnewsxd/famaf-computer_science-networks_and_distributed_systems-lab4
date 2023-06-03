@@ -18,8 +18,7 @@
 
 #include <omnetpp.h>
 #include "Packet_m.h"
-#include "NeighborInfo_m.h"
-#include "LSP_m.h"
+#include "NeighborInfoPacket_m.h"
 
 using namespace omnetpp;
 using namespace std;
@@ -31,48 +30,49 @@ using namespace std;
 class Net : public cSimpleModule
 {
   private:
-    // Node Info
-    static const int cntNeighbor = 2;
-    int neighborReached; // the cnt of known neighbors
-    int neighbor[cntNeighbor]; // the ith element is the neighbor name if i travel to the ith gate
-                            // -1 if i don't know the name
+    // Actual Node Information
+    int nodeName;
 
-    // Network Representation
-    map<int, int> id, idRev; // NodeName to Index to represent it in the graph. The next map (idRev) is the reverse
-    vector<pair<int, int>> graph; // The ith element is the (left, right) neighbors of the node
-    vector<bool> LSPVis; // True if the node get the LSP information with node with id equals to the index (ith)
-    int cntLSPVis;
-    int cntNodesGraph;
-    virtual int getID(int nodeName);
-    virtual int getIDRev(int nodeName);
+    // Neighbor Nodes Information
+    int cntGates;
+    int cntNeighborConnected;
+    int cntNeighborReached;
+    vector<pair<int, int>> neighborList; // (neighborName, gateToGo)
 
-    // Gate to Send
-    virtual int getGateToSend(int nodeName);
-    vector<int> gateToSend;
+    // Actualization Information
+    const SimTime TIME_ACTUALIZATION = SimTime(10, SIMTIME_S); // Actualize every 10 seconds
+    cMessage *actualizeNetworkInformation;
+
+    // Network Local Information
 
   public:
     Net();
     virtual ~Net();
   protected:
+    // More important functions
     virtual void initialize();
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
 
-    // Node name
-    int nodeName;
+    // Data Packet
+    virtual bool isDataPacket(Packet *pkt);
 
-    // Data Packet Info
-    virtual bool isDataPacket(cMessage *msg);
+    // Neighbor Nodes Information
+    virtual bool isNeighborInfoPacket(Packet *pkt); // Destination = -1
+    virtual NeighborInfoPacket *createNeighborInfoPacket(int gateID);
+    virtual void askForNeighbors();
+    virtual void completeNeighborInfoAndReturn(NeighborInfoPacket *pkt);
+    virtual void actualizeNeighbors(NeighborInfoPacket *pkt);
 
-    // Neighbor Info
-    virtual bool isNeighborInfo(cMessage *msg);
-    virtual void askNeighborInfo();
-    virtual void actualizeNeighborInfo(NeighborInfo *pkt);
+    // Actualization Information
+    virtual bool isActualizationMsg(cMessage *msg);
 
-    // LSP Info
-    virtual bool isLSPInfo(cMessage *msg);
-    virtual void sendLSP(LSP *pkt);
-    virtual void actualizeNetworkRepresentation(LSP *pkt);
+    // Network Local Information
+    virtual void resetAllNetworkLocalInformation();
+
+    // DEBUG Functions
+    virtual void printNodeInformation();
+    virtual void printNeighborInformation();
 };
 
 #endif
