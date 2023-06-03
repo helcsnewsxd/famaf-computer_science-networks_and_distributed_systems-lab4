@@ -150,7 +150,7 @@ void Net::actualizeNetworkRepresentation(LSP *pkt) {
     sendLSP(pkt);
 
     // If i finish the Network Representation using LSP messages, calculate the gate for the nodes
-    if (cntNodesGraph == cntLSPVis && DEBUG) {
+    if (cntNodesGraph == cntLSPVis) {
         // Check the minimum distance with BFS
         queue<pair<int, int>> q;
         q.push(make_pair(graph[getID(nodeName)].first, 0));
