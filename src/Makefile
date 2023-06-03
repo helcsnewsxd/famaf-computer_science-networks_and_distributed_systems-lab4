@@ -33,10 +33,17 @@ PROJECTRELATIVE_PATH = src
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/App.o $O/Lnk.o $O/Net.o $O/NeighborInfoPacket_m.o $O/Packet_m.o
+OBJS = \
+    $O/App.o \
+    $O/Lnk.o \
+    $O/Net.o \
+    $O/LSPPacket_m.o \
+    $O/NeighborInfoPacket_m.o \
+    $O/Packet_m.o
 
 # Message files
 MSGFILES = \
+    LSPPacket.msg \
     NeighborInfoPacket.msg \
     Packet.msg
 

@@ -81,7 +81,10 @@ void Net::actualizeNeighbors(NeighborInfoPacket *pkt) {
     cntNeighborReached++;
 
     if (cntNeighborConnected == cntNeighborReached) { // I've all the information of my neighbors
-        printNeighborInformation();
+        LSPPacket *LSPInformation = calculateMyLSPInformation();
+        actualizeNetworkLocalInformation(LSPInformation); // I should send my LSP information to the network
+                                                          // and actualize the local representation
+        delete(LSPInformation);
     }
 }
 
@@ -92,6 +95,33 @@ void Net::resetAllNetworkLocalInformation() {
     cntGates = 0;
     cntNeighborConnected = cntNeighborReached = 0;
     neighborList.clear();
+}
+
+// LSP Information
+
+LSPPacket *Net::calculateMyLSPInformation() {
+    LSPPacket *LSPInformation = new LSPPacket();
+    LSPInformation->setSource(nodeName);
+    LSPInformation->setDestination(-2);
+    LSPInformation->setHopCount(0);
+
+    LSPInformation->setNode(nodeName);
+    LSPInformation->setNeighborListArraySize(cntNeighborConnected);
+    for (int i = 0; i < cntNeighborConnected; i++)
+        LSPInformation->setNeighborList(i, neighborList[i].first);
+    return LSPInformation;
+}
+
+void Net::sendLSPInformation(LSPPacket *pkt) {
+    // Send the LSP Info to the network
+    for (pair<int, int> neighbor : neighborList)
+        send((cMessage *) pkt->dup(), "toLnk$o", neighbor.second);
+}
+
+// Local Graph Representation
+
+void Net::actualizeNetworkLocalInformation(LSPPacket *pkt) {
+
 }
 
 // MESSAGE HANDLER
@@ -108,6 +138,10 @@ bool Net::isActualizationMsg(cMessage *msg) {
 
 bool Net::isNeighborInfoPacket(Packet *pkt) {
     return (pkt->getDestination() == -1);
+}
+
+bool Net::isLSPPacket(Packet *pkt) {
+    return (pkt->getDestination() == -2);
 }
 
 // Handler
@@ -138,6 +172,11 @@ void Net::handleMessage(cMessage *msg) {
             actualizeNeighbors((NeighborInfoPacket *) msg);
             delete(msg);
         }
+
+    } else if (isLSPPacket((Packet *) msg)) { // LSP Packet --> Actualize the network information
+
+        actualizeNetworkLocalInformation((LSPPacket *) msg);
+        delete(msg);
 
     } else { // MSG Type not considered
 

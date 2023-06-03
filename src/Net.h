@@ -19,6 +19,7 @@
 #include <omnetpp.h>
 #include "Packet_m.h"
 #include "NeighborInfoPacket_m.h"
+#include "LSPPacket_m.h"
 
 using namespace omnetpp;
 using namespace std;
@@ -69,6 +70,10 @@ class Net : public cSimpleModule
 
     // Network Local Information
     virtual void resetAllNetworkLocalInformation();
+    virtual LSPPacket *calculateMyLSPInformation();
+    virtual void sendLSPInformation(LSPPacket *pkt);
+    virtual bool isLSPPacket(Packet *pkt); // Destination = -2;
+    virtual void actualizeNetworkLocalInformation(LSPPacket *pkt);
 
     // DEBUG Functions
     virtual void printNodeInformation();
