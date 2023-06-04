@@ -150,50 +150,38 @@ void Net::actualizeNetworkLocalInformation(LSPPacket *pkt) {
     int nodeLSP = pkt->getNode();
     int nodeLSPIndex = getID(nodeLSP);
 
+    if (!graphNetwork[nodeLSPIndex].empty()) // If i'ts LSP repeated packet, not consider
+        return;
+
+    // Set the graph information
+
     vector<int> nodeLSPNeighborsIndex;
     for (int i = 0, szi = pkt->getNeighborListArraySize(); i < szi; i++) {
         int neighborLSPIndex = getID(pkt->getNeighborList(i));
         nodeLSPNeighborsIndex.push_back(neighborLSPIndex);
     }
+    graphNetwork[nodeLSPIndex] = nodeLSPNeighborsIndex;
 
-    // Check if i've a difference (else, i don't anything)
-    if (graphNetwork[nodeLSPIndex].size() == nodeLSPNeighborsIndex.size()) {
-        set<int> graphNeighbors;
-        for (int neighbor : graphNetwork[nodeLSPIndex])
-            graphNeighbors.insert(neighbor);
 
-        bool isDifferent = false;
-        for (int neighbor : nodeLSPNeighborsIndex)
-            if (!graphNeighbors.count(neighbor)) {
-                isDifferent = true;
-                break;
-            }
-
-        if (!isDifferent) // Don't need actualize nothing
-            return;
-    }
-
-    if (nodeLSP == nodeName) { // The actual node. This happens when the neighbors changes
+    if (nodeLSP == nodeName) { // The actual node. This happens one time
 
         distToGo[nodeLSPIndex] = 0;
         gateToSend[nodeLSPIndex] = -2;
-        graphNetwork[nodeLSPIndex].clear();
         for (pair<int, int> neighbor : neighborList) {
             int neighborID = getID(neighbor.first);
             distToGo[neighborID] = 1;
             gateToSend[neighborID] = neighbor.second;
-            graphNetwork[nodeLSPIndex].push_back(neighborID);
         }
 
     } else { // The LSP Packet is from other node
 
         int actDist = -1, neighborIndexWithLessDist = -1;
 
-        for (int neighborLSPIndex : nodeLSPNeighborsIndex)
-            if (actDist == -1 || (actDist > distToGo[neighborLSPIndex] && distToGo[neighborLSPIndex] != -1))
-                actDist = distToGo[neighborLSPIndex], neighborIndexWithLessDist = neighborLSPIndex;
+        for (int neighbor : graphNetwork[nodeLSPIndex])
+            if (actDist == -1 || (actDist > distToGo[neighbor] && distToGo[neighbor] != -1))
+                actDist = distToGo[neighbor], neighborIndexWithLessDist = neighbor;
 
-        graphNetwork[nodeLSPIndex] = nodeLSPNeighborsIndex;
+        assert(actDist != -1);
 
         if (actDist != 0) { // Not consider if it's my neighbor because i should have
                             // the information early (when i check my neighbors)

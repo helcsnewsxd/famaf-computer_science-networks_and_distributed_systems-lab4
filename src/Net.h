@@ -41,7 +41,6 @@ class Net : public cSimpleModule
     vector<pair<int, int>> neighborList; // (neighborName, gateToGo)
 
     // Actualization Information
-    const SimTime TIME_ACTUALIZATION = SimTime(10, SIMTIME_S); // Actualize every 10 seconds
     cMessage *actualizeNetworkInformation;
 
     // Network Local Information
