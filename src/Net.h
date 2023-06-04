@@ -36,7 +36,7 @@ class Net : public cSimpleModule
 
     // Neighbor Nodes Information
     int cntGates;
-    int cntNeighborConnected;
+    int cntNeighborConnected; // I consider that this NEVER is Zero
     int cntNeighborReached;
     vector<pair<int, int>> neighborList; // (neighborName, gateToGo)
 
@@ -45,6 +45,15 @@ class Net : public cSimpleModule
     cMessage *actualizeNetworkInformation;
 
     // Network Local Information
+    vector<int> distToGo;
+    int cntNodesGraph;
+    vector<vector<int>> graphNetwork; // Network representation
+
+    // Mapping nodeName and graphIndex
+    map<int, int> id, idRev; // // NodeName to Index to represent it in the graph. The next map (idRev) is the reverse
+
+    // Gate to Send the Packet
+    vector<int> gateToSend;
 
   public:
     Net();
@@ -69,15 +78,23 @@ class Net : public cSimpleModule
     virtual bool isActualizationMsg(cMessage *msg);
 
     // Network Local Information
-    virtual void resetAllNetworkLocalInformation();
+    virtual void resetNeighborInformation();
     virtual LSPPacket *calculateMyLSPInformation();
     virtual void sendLSPInformation(LSPPacket *pkt);
     virtual bool isLSPPacket(Packet *pkt); // Destination = -2;
     virtual void actualizeNetworkLocalInformation(LSPPacket *pkt);
 
+    // Mapping nodeName and graphIndex (return the index or create the new entry for it)
+    virtual int getID(int nodeName);
+    virtual int getIDRev(int nodeName);
+
+    // Return the best gate (index) to send the packet
+    virtual int getBestGate(int destination);
+
     // DEBUG Functions
     virtual void printNodeInformation();
     virtual void printNeighborInformation();
+    virtual void printNetworkInformation();
 };
 
 #endif

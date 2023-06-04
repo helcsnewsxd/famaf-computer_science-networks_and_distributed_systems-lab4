@@ -14,6 +14,7 @@
 // 
 
 #include <stdio.h>
+#include <queue>
 #include "Net.h"
 
 Define_Module(Net);
@@ -29,6 +30,9 @@ Net::~Net() {
 void Net::initialize() {
     // Set my node information
     nodeName = this->getParentModule()->getIndex();
+
+    // Network information
+    cntNodesGraph = 0;
 
     // Create the actualization event
     actualizeNetworkInformation = new cMessage("actualizeNetworkInformation");
@@ -90,7 +94,7 @@ void Net::actualizeNeighbors(NeighborInfoPacket *pkt) {
 
 // NETWORK LOCAL INFORMATION
 
-void Net::resetAllNetworkLocalInformation() {
+void Net::resetNeighborInformation() {
     // Reset my neighbor's information
     cntGates = 0;
     cntNeighborConnected = cntNeighborReached = 0;
@@ -118,10 +122,114 @@ void Net::sendLSPInformation(LSPPacket *pkt) {
         send((cMessage *) pkt->dup(), "toLnk$o", neighbor.second);
 }
 
+// Mapping nodeName and graphIndex (return the index or create the new entry for it)
+
+int Net::getID(int name) {
+    if (id.find(name) != id.end())
+        return id[name];
+
+    id[name] = cntNodesGraph;
+    idRev[cntNodesGraph] = name;
+
+    graphNetwork.push_back({});
+    distToGo.push_back(-1);
+    gateToSend.push_back(-1);
+
+    return cntNodesGraph++;
+}
+
+int Net::getIDRev(int nodeIndex) {
+    assert(idRev.find(nodeIndex) != idRev.end());
+    return idRev[nodeIndex];
+}
+
 // Local Graph Representation
 
 void Net::actualizeNetworkLocalInformation(LSPPacket *pkt) {
+    // Get the information
+    int nodeLSP = pkt->getNode();
+    int nodeLSPIndex = getID(nodeLSP);
 
+    vector<int> nodeLSPNeighborsIndex;
+    for (int i = 0, szi = pkt->getNeighborListArraySize(); i < szi; i++) {
+        int neighborLSPIndex = getID(pkt->getNeighborList(i));
+        nodeLSPNeighborsIndex.push_back(neighborLSPIndex);
+    }
+
+    // Check if i've a difference (else, i don't anything)
+    if (graphNetwork[nodeLSPIndex].size() == nodeLSPNeighborsIndex.size()) {
+        set<int> graphNeighbors;
+        for (int neighbor : graphNetwork[nodeLSPIndex])
+            graphNeighbors.insert(neighbor);
+
+        bool isDifferent = false;
+        for (int neighbor : nodeLSPNeighborsIndex)
+            if (!graphNeighbors.count(neighbor)) {
+                isDifferent = true;
+                break;
+            }
+
+        if (!isDifferent) // Don't need actualize nothing
+            return;
+    }
+
+    if (nodeLSP == nodeName) { // The actual node. This happens when the neighbors changes
+
+        distToGo[nodeLSPIndex] = 0;
+        gateToSend[nodeLSPIndex] = -2;
+        graphNetwork[nodeLSPIndex].clear();
+        for (pair<int, int> neighbor : neighborList) {
+            int neighborID = getID(neighbor.first);
+            distToGo[neighborID] = 1;
+            gateToSend[neighborID] = neighbor.second;
+            graphNetwork[nodeLSPIndex].push_back(neighborID);
+        }
+
+    } else { // The LSP Packet is from other node
+
+        int actDist = -1, neighborIndexWithLessDist = -1;
+
+        for (int neighborLSPIndex : nodeLSPNeighborsIndex)
+            if (actDist == -1 || (actDist > distToGo[neighborLSPIndex] && distToGo[neighborLSPIndex] != -1))
+                actDist = distToGo[neighborLSPIndex], neighborIndexWithLessDist = neighborLSPIndex;
+
+        graphNetwork[nodeLSPIndex] = nodeLSPNeighborsIndex;
+
+        if (actDist != 0) { // Not consider if it's my neighbor because i should have
+                            // the information early (when i check my neighbors)
+            gateToSend[nodeLSPIndex] = gateToSend[neighborIndexWithLessDist];
+            distToGo[nodeLSPIndex] = actDist+1;
+        }
+
+        // Do BFS to actualize network nodes
+
+        queue<int> q;
+        q.push(nodeLSPIndex);
+        while(!q.empty()) {
+            int actNode = q.front();
+            q.pop();
+            for (int actNeighbor : graphNetwork[actNode]) {
+                // If i can get a new minimum path, actualize the information
+                if (distToGo[actNeighbor] == -1 || distToGo[actNeighbor] > distToGo[actNode] + 1) {
+                    distToGo[actNeighbor] = distToGo[actNode] + 1;
+                    gateToSend[actNeighbor] = gateToSend[actNode];
+                    q.push(actNeighbor);
+                }
+            }
+        }
+    }
+
+    // Send the LSP information to other nodes
+    sendLSPInformation(pkt);
+}
+
+// GETTING THE BEST ROUTING FOR A DESTINATION
+
+int Net::getBestGate(int destination) {
+    int destinationIndex = getID(destination);
+    if (gateToSend[destinationIndex] == -1) // If not exists a path or i need actualize the network local info
+        return neighborList[0].second; // Send to any
+    else return gateToSend[destinationIndex];
 }
 
 // MESSAGE HANDLER
@@ -150,18 +258,16 @@ void Net::handleMessage(cMessage *msg) {
 
     if (isActualizationMsg(msg)) { // I've to actualize the local information
 
-        resetAllNetworkLocalInformation();
+        resetNeighborInformation();
         askForNeighbors();
 
     } else if (isDataPacket((Packet *) msg)) { // Data Packet
 
-        delete(msg);
-
-//        // If this node is the final destination, send to App layer
-//        if (((Packet *) msg)->getDestination() == nodeName)
-//            send(msg, "toApp$o");
-//        else // Re-send the packet
-//            send(msg, "toLnk$o", 0); // COMPLETE WITH THE OPTIMAL ROUTE
+        // If this node is the final destination, send to App layer
+        if (((Packet *) msg)->getDestination() == nodeName)
+            send(msg, "toApp$o");
+        else // Re-send the packet
+            send(msg, "toLnk$o", getBestGate(((Packet *) msg)->getDestination()));
 
     } else if (isNeighborInfoPacket((Packet *) msg)) { // Neighbor Packet
 
@@ -202,4 +308,26 @@ void Net::printNeighborInformation() {
     cout << "Neighbors: ";
     for (pair<int, int> neighbor : neighborList) cout << '(' << neighbor.first << ',' << neighbor.second << ") ";
     cout << endl << string(40, '-') << endl;
+}
+
+void Net::printNetworkInformation() {
+    cout << "NETWORK INFORMATION OF NODE " << nodeName << endl;
+
+    cout << "GRAPH REPRESENTATION:" << endl;
+    for (int i = 0; i < cntNodesGraph; i++) {
+        cout << "Node " << getIDRev(i) << " with neighbors ";
+        for (int neighbor : graphNetwork[i])
+            cout << getIDRev(neighbor) << ' ';
+        cout << endl;
+    }
+
+    cout << "DISTANCES:" << endl;
+    for (int i = 0; i < cntNodesGraph; i++)
+        cout << "Node " << getIDRev(i) << " with distance " << distToGo[i] << endl;
+
+    cout << "GATES TO SEND" << endl;
+    for (int i = 0; i < cntNodesGraph; i++)
+            cout << "Node " << getIDRev(i) << " with gate to send " << gateToSend[i] << endl;
+
+    cout << endl << string(40, '=') << endl;
 }
