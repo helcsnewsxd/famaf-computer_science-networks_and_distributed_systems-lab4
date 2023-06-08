@@ -33,6 +33,13 @@ void Net::initialize() {
     cntLSPVis = 0;
     neighborReached = 0;
     memset(neighbor, 0, sizeof(neighbor));
+    fwdDataPkt.setName("Forwarded DataPackets");
+    rcvDataPkt.setName("Received DataPackets");
+    sentNeighbor.setName("Sent NeighborPkt");
+    rcvNeighbor.setName("Rcv NeighborPkt");
+    fwdNeighbor.setName("Fwd NeighborPkt");
+    sentLSP.setName("Sent LSP");
+    rcvLSP.setName("Rcv LSP");
 
     // Get the information from the neighbors
     askNeighborInfo();
@@ -63,6 +70,7 @@ void Net::askNeighborInfo() {
         pkt->setSource(nodeName);
         pkt->setDestination(-1);
         send((cMessage *)pkt, "toLnk$o", i);
+        sentNeighbor.record(1);
     }
 }
 
@@ -125,6 +133,7 @@ void Net::sendLSP(LSP *pkt) {
     for (int i = 0; i < cntNeighbor; i++) {
         LSP *pktLSP = pkt->dup();
         send((cMessage *)pktLSP, "toLnk$o", i);
+        sentLSP.record(1);
     }
 }
 
@@ -204,10 +213,13 @@ void Net::handleMessage(cMessage *msg) {
         Packet *pkt = (Packet *)msg;
 
         // If this node is the final destination, send to App
-        if (pkt->getDestination() == nodeName)
+        if (pkt->getDestination() == nodeName) {
             send((cMessage *)pkt, "toApp$o");
-        else { // Re-send the packet
+            rcvDataPkt.record(1);
+        } else { // Re-send the packet
             send((cMessage *)pkt, "toLnk$o", getGateToSend(pkt->getDestination()));
+            pkt->setHopCount(pkt->getHopCount() + 1);
+            fwdDataPkt.record(1);
         }
 
     } else if (isNeighborInfo(msg)) {
@@ -215,15 +227,17 @@ void Net::handleMessage(cMessage *msg) {
         NeighborInfo *pkt = (NeighborInfo*)msg;
 
         if (pkt->getSource() == nodeName) { // The packet has the information that i need
+            rcvNeighbor.record(1);
             actualizeNeighborInfo(pkt);
             delete(msg);
         } else { // I've to fill my information in the packet to return to source
+            fwdNeighbor.record(1);
             pkt->setNeighborName(nodeName);
             send((cMessage *)pkt, "toLnk$o", pkt->getArrivalGate()->getIndex());
         }
 
     } else if (isLSPInfo(msg)) {
-
+        rcvLSP.record(1);
         LSP *pkt = (LSP *)msg;
         actualizeNetworkRepresentation(pkt);
         delete(msg);

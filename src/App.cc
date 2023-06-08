@@ -36,6 +36,8 @@ void App::initialize() {
     // Initialize statistics
     delayStats.setName("TotalDelay");
     delayVector.setName("Delay");
+    newPktCount.setName("Sent DataPkt");
+    hops.setName("Hops");
 }
 
 void App::finish() {
@@ -56,7 +58,7 @@ void App::handleMessage(cMessage *msg) {
 
         // send to net layer
         send(pkt, "toNet$o");
-
+        newPktCount.record(1);
         // compute the new departure time and schedule next sendMsgEvent
         simtime_t departureTime = simTime() + par("interArrivalTime");
         scheduleAt(departureTime, sendMsgEvent);
@@ -64,10 +66,14 @@ void App::handleMessage(cMessage *msg) {
     }
     // else, msg is a packet from net layer
     else {
+        // cast the message to the custom packet class
+        Packet *pkt = check_and_cast<Packet *>(msg);
+
         // compute delay and record statistics
         simtime_t delay = simTime() - msg->getCreationTime();
         delayStats.collect(delay);
         delayVector.record(delay);
+        hops.record(pkt->getHopCount());
         // delete msg
         delete (msg);
     }

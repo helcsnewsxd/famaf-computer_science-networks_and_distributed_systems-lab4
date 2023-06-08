@@ -50,6 +50,15 @@ class Net : public cSimpleModule
     virtual int getGateToSend(int nodeName);
     vector<int> gateToSend;
 
+    //metrics
+    cOutVector fwdDataPkt;
+    cOutVector rcvDataPkt;
+    cOutVector sentNeighbor;
+    cOutVector rcvNeighbor;
+    cOutVector fwdNeighbor;
+    cOutVector sentLSP;
+    cOutVector rcvLSP;
+
   public:
     Net();
     virtual ~Net();

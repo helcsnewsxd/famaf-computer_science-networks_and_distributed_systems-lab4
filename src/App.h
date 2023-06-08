@@ -29,6 +29,8 @@ class App : public cSimpleModule
     cMessage *sendMsgEvent;
     cStdDev delayStats;
     cOutVector delayVector;
+    cOutVector newPktCount;
+    cOutVector hops;
   public:
     App();
     virtual ~App();
