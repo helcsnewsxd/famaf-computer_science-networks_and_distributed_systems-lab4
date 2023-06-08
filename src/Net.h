@@ -54,6 +54,15 @@ class Net : public cSimpleModule
     // Gate to Send the Packet
     vector<int> gateToSend;
 
+    //metrics
+    cOutVector fwdDataPkt;
+    cOutVector rcvDataPkt;
+    cOutVector sentNeighbor;
+    cOutVector rcvNeighbor;
+    cOutVector fwdNeighbor;
+    cOutVector sentLSP;
+    cOutVector rcvLSP;
+
   public:
     Net();
     virtual ~Net();

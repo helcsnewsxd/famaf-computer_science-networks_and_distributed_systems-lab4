@@ -28,6 +28,14 @@ Net::~Net() {
 // INITIALIZATION FUNCTION
 
 void Net::initialize() {
+    //metrics
+    fwdDataPkt.setName("Forwarded DataPackets");
+    rcvDataPkt.setName("Received DataPackets");
+    sentNeighbor.setName("Sent NeighborPkt");
+    rcvNeighbor.setName("Rcv NeighborPkt");
+    fwdNeighbor.setName("Fwd NeighborPkt");
+    sentLSP.setName("Sent LSP");
+    rcvLSP.setName("Rcv LSP");
     // Set my node information
     nodeName = this->getParentModule()->getIndex();
 
@@ -65,6 +73,7 @@ void Net::askForNeighbors() {
             continue;
         NeighborInfoPacket *pkt = createNeighborInfoPacket(gateID);
         send((cMessage *) pkt, "toLnk$o", gateID);
+        sentNeighbor.record(1);
         cntNeighborConnected++;
     }
 }
@@ -120,6 +129,7 @@ void Net::sendLSPInformation(LSPPacket *pkt) {
     // Send the LSP Info to the network
     for (pair<int, int> neighbor : neighborList)
         send((cMessage *) pkt->dup(), "toLnk$o", neighbor.second);
+        sentLSP.record(1);
 }
 
 // Mapping nodeName and graphIndex (return the index or create the new entry for it)
@@ -252,23 +262,29 @@ void Net::handleMessage(cMessage *msg) {
     } else if (isDataPacket((Packet *) msg)) { // Data Packet
 
         // If this node is the final destination, send to App layer
-        if (((Packet *) msg)->getDestination() == nodeName)
+        if (((Packet *) msg)->getDestination() == nodeName) {
             send(msg, "toApp$o");
-        else // Re-send the packet
-            send(msg, "toLnk$o", getBestGate(((Packet *) msg)->getDestination()));
-
+            rcvDataPkt.record(1);
+        } else { // Re-send the packet
+            Packet *pkt = (Packet *)msg;
+            send(pkt, "toLnk$o", getBestGate(((Packet *) pkt)->getDestination()));
+            pkt->setHopCount(pkt->getHopCount() + 1);
+            fwdDataPkt.record(1);
+        }
     } else if (isNeighborInfoPacket((Packet *) msg)) { // Neighbor Packet
 
         // If i've to complete with my info and return the packet
-        if (((Packet *) msg)->getSource() != nodeName)
+        if (((Packet *) msg)->getSource() != nodeName){
+            fwdNeighbor.record(1);
             completeNeighborInfoAndReturn((NeighborInfoPacket *) msg);
-        else { // If i've to actualize with my neighbor info
+        } else { // If i've to actualize with my neighbor info
             actualizeNeighbors((NeighborInfoPacket *) msg);
+            rcvNeighbor.record(1);
             delete(msg);
         }
 
     } else if (isLSPPacket((Packet *) msg)) { // LSP Packet --> Actualize the network information
-
+        rcvLSP.record(1);
         actualizeNetworkLocalInformation((LSPPacket *) msg);
         delete(msg);
 
