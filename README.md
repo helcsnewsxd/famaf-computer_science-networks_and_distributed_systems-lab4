@@ -6,13 +6,13 @@
 - [Introducción](#introducción)
 - [Análisis de Casos (Etapa de Análisis)](#análisis-de-casos-etapa-de-análisis)
 - [Tarea de Diseño](#tarea-de-diseño)
-  - [Introducción y planteo del problema](#introducción-y-planteo-del-problema)
-  - [Estructura a considerar](#estructura-a-considerar)
-  - [Puntos importantes que se tuvieron en cuenta](#puntos-importantes-que-se-tuvieron-en-cuenta)
-  - [Idea de la estrategia de enrutamiento](#idea-de-la-estrategia-de-enrutamiento)
-  - [Implementación](#implementación)
-    - [Obtener información de mis vecinos](#obtener-información-de-mis-vecinos)
-    - [Obtener información de los vecinos de todos los nodos](#obtener-información-de-los-vecinos-de-todos-los-nodos)
+    - [Introducción y planteo del problema](#introducción-y-planteo-del-problema)
+    - [Estructura a considerar](#estructura-a-considerar)
+    - [Puntos importantes que se tuvieron en cuenta](#puntos-importantes-que-se-tuvieron-en-cuenta)
+    - [Idea de la estrategia de enrutamiento](#idea-de-la-estrategia-de-enrutamiento)
+    - [Implementación](#implementación)
+        - [Obtener información de mis vecinos](#obtener-información-de-mis-vecinos)
+        - [Obtener información de los vecinos de todos los nodos](#obtener-información-de-los-vecinos-de-todos-los-nodos)
 - [Análisis de Casos (Etapa de Diseño)](#análisis-de-casos-etapa-de-diseño)
 - [Conclusiones acerca de esta implementación](#conclusiones-acerca-de-esta-implementación)
 
@@ -354,10 +354,10 @@ Comparado con la etapa de Análisis, cuando el interArrivalTime es exponential(1
 **Delays y Saltos**
 ![image](/img/graphs/design/case2/delay_hops.png)
 
-Aquí el delay va aumentando progresivamente también.
-Los saltos también serán de entre 0 y 4.
+Aquí el delay va aumentando progresivamente también. No hay muchas diferencias con la etapa de análisis.
 
-La diferencia con la etapa de análisis es que habrá menos saltos (porque la ruta es más corta) y el delay será menor
+En los saltos, vemos que hay menores (que la etapa de análisis), esto es porque la ruta elegida es mas corta y eficiente que en la etapa de análisis.
+
 **Otras medidas**
 
 *Paquetes de Control*
