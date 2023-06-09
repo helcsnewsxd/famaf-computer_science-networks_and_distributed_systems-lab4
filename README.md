@@ -15,6 +15,8 @@
         - [Obtener información de los vecinos de todos los nodos](#obtener-información-de-los-vecinos-de-todos-los-nodos)
 - [Análisis de Casos (Etapa de Diseño)](#análisis-de-casos-etapa-de-diseño)
 - [Conclusiones acerca de esta implementación](#conclusiones-acerca-de-esta-implementación)
+- [Tarea Estrella](#tarea-estrella)
+
 
 # Resumen
 
