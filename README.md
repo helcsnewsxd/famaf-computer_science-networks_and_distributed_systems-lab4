@@ -66,9 +66,6 @@ En este caso corrimos el modelo sin cambios en su configuración, es decir, los 
 
 ## **Segundo Caso**
 
-**Eficiencia según el interArrivalTime**
-(...)
-
 Aquí todos los nodos generan paquetes hacia el nodo 5. PacketByteSize e InterArrivalTime son idénticos entre los nodos. Tenemos que buscar un tiempo de interArrivalTime en donde la red se estabilice.
 
 En nuestra red, si el tiempo interArrivalTime es demasiado pequeño, los paquetes se enviarán rápido, provocando que la carga del tráfico aumente, generando congestión.
