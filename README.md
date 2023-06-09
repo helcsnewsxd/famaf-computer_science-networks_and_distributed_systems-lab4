@@ -76,6 +76,37 @@ Si lo que nosotros buscamos en estabilizar la red, un tiempo como exponential(1)
 
 Si bien queremos no saturar la red, tampoco debemos subutilizarla. Si hacemos el interArrivalTime demasiado grande, produciremos un efecto igual de ineficiente que si el interArrivalTime fuera muy pequeño.
 
+Veamos que sucede para algunos valores de interArrivalTime:
+
+### interArrivalTime = exponential(1)
+
+**Ocupación de Buffers en sistema**
+![image](/img/graphs/analysis/case2/exp1/buffers.png)
+**Delays y Saltos**
+![image](/img/graphs/analysis/case2/exp1/delay_hops.png)
+
+### interArrivalTime = exponential(3)
+
+**Ocupación de Buffers en sistema**
+![image](/img/graphs/analysis/case2/exp3/buffers.png)
+**Delays y Saltos**
+![image](/img/graphs/analysis/case2/exp3/delay_hops.png)
+
+### interArrivalTime = exponential(5)
+
+**Ocupación de Buffers en sistema**
+![image](/img/graphs/analysis/case2/exp5/buffers.png)
+**Delays y Saltos**
+![image](/img/graphs/analysis/case2/exp5/delay_hops.png)
+
+Veamos que a medida que aumenta el tiempo de interArrivalTime, los paquetes que cirulan la red disminuyen, por lo que hay menor congestión y por lo tanto menos paquetes en los buffers. Sin embargo, en casos como por ejemplo interArrivalTime = exponential(5) nos pasa que no estan llegando muchos de los paquetes porque el tiempo de simulación no lo permite, desaprovechando los recursos de nuestra red. 
+
+(Cuando interArrivalTime = exponential(1) vemos que llegan muchos más paquetes, pero los buffers se saturan demasiado.)
+
+Entonces, debemos tener en cuenta la cantidad de paquetes que llegan cuando nuestra simulación termine. No será la misma cantidad cuando interArrivalTime es exponential(1) que cuando interArrivalTime es exponential(5).
+
+Si interArrivalTime = exponential(3), podemos ver que los buffers no se saturan mucho, y que además llegaría una cantidad mayor de paquetes que si fuera exponential(5). Asique convendría usar un tiempo mayor a exponential(1) pero no mayor a exponential(3).
+
 Luego de analizar la red cruda, proseguimos a implementar un algoritmo de enrutamiento mejorado. Ésto lo hicimos en la tarea de diseño.
 
 # Tarea de Diseño
@@ -318,12 +349,15 @@ Veamos algunas de las métricas
 
 * Resto de los nodos: si tienen un aumento de uso en sus buffers porque no sólo deben enviar los paquetes que generan ellos mismos, si no que además deben procesar los recibidos por los nodos anteriores.
 
+Comparado con la etapa de Análisis, cuando el interArrivalTime es exponential(1), vemos que no hay mucha diferencia entre las gráficas de los buffers de los nodos. Sin embargo, una diferencia notable es que al ser distinto el enrutamiento de los paquetes, y que los nodos 0 y 2 no reciben paquetes de otros nodos, su uso de buffer es menor o mas "controlado" que en la etapa de análisis.
+
 **Delays y Saltos**
 ![image](/img/graphs/design/case2/delay_hops.png)
 
 Aquí el delay va aumentando progresivamente también.
 Los saltos también serán de entre 0 y 4.
 
+La diferencia con la etapa de análisis es que habrá menos saltos (porque la ruta es más corta) y el delay será menor
 **Otras medidas**
 
 *Paquetes de Control*
